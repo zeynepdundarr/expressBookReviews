@@ -4,10 +4,21 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-
 public_users.post("/register", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const username = req.body.username;
+  const password = req.body.password;
+
+  if (username && password){
+    const existing_user = users.filter(el => el.username == username)
+    if (existing_user.length > 0){
+      res.status(404).json({message: "The user already exists!"});
+    }else{
+      users.push({username: username, password: password});
+      res.status(200).json({message: `The user ${username} is registered!`});
+    }
+  }else{
+    res.status(403).json({message: "Please provide correct username and password"});
+  }
 });
 
 
