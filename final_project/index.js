@@ -11,6 +11,8 @@ app.use(express.json());
 
 app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
 
+
+// disable authentication temporarily
 app.use("/customer/auth/*", function auth(req,res,next){
 
     const authHeader = req.headers['authorization'];
@@ -24,7 +26,7 @@ app.use("/customer/auth/*", function auth(req,res,next){
              // proceed to next middleware
             next();
         }else{
-            res.status(403).json({message: "user is not authenticated"});
+            res.status(403).json({message: "User is not authenticated"});
         }
     });
 });
