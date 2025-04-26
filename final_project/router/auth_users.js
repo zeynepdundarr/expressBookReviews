@@ -16,20 +16,21 @@ const authenticatedUser = (username,password)=>{ //returns boolean
 //only registered users can login
 regd_users.post("/login", (req,res) => {
   //Write your code here
-  const user = req.user
+  const user = req.body.user
   const existing_user = users.filter(el => el.username == user)
   if (existing_user.length == 0){
     res.status(404).json({message: "The user is not registered!"});
+  }else{
+    const token = jwt.sign({ id: user}, "fingerprint_customer", { expiresIn: '5h' })
+    return res.status(201).json({token});
   }
-  const token = jwt.sign({ id: user}, "fingerprint_customer", { expiresIn: '5h' })
-
-  return res.status(201).json({token});
+  
 });
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   let isbn = req.params.isbn;
-  let user = req.user;
+  let user = req.body.user;
   let review = req.body.review;
 
   if (!isNaN(isbn) && books[isbn]){
@@ -43,8 +44,8 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
 regd_users.get("/auth/review/:isbn", (req, res) => {
   let isbn = req.params.isbn;
-  if (!isNaN(isbn) && isbn in books[number]){
-  let reviews_by_isbn = books[isbn];
+  if (!isNaN(isbn) && books[Number(isbn)]){
+    let reviews_by_isbn = books[isbn];
     res.status(200).json({reviews_by_isbn})
   }else{
     res.status(404).json({message:"ISBN code is not valid nor is not found!"});
@@ -52,11 +53,11 @@ regd_users.get("/auth/review/:isbn", (req, res) => {
 });
 
 regd_users.delete("/auth/review/:isbn", (req, res) => {
-  let user= req.user
+  let user= req.body.user
   let isbn = req.params.isbn;
-  if (!isNaN(isbn) && books[isbn]){
-    books[isbn]["reviews"][user.id] = {};
-    let updated = books[isbn]["reviews"]
+  if (!isNaN(isbn) && books[Number(isbn)]){
+    books[Number(isbn)]["reviews"][user] = {};
+    let updated = books[Number(isbn)]
     res.status(200).json({updated})
   }else{
     res.status(404).json({message:"ISBN code is not valid nor is not found!"});

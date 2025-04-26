@@ -50,6 +50,30 @@ public_users.get('/isbn/:isbn',function (req, res) {
   return res.send(books[1])
  });
 
+ // Get book details based on ISBN
+ public_users.get('/promise-isbn/:isbn', function (req, res) {
+  const isbn = req.params.isbn; // <-- You forgot to define isbn
+
+  let promise = new Promise((resolve, reject) => {
+    if (!isNaN(isbn) && books[isbn]) {
+      resolve(books[Number(isbn)]);
+    } else {
+      reject("isbn is not valid!");
+    }
+  });
+
+  promise.then((retrievedBook) => {
+    if (retrievedBook) {
+      return res.json({ retrievedBook });
+    } else {
+      return res.status(404).json({ message: "No books found for this isbn" });
+    }
+  }).catch((err) => {
+    res.status(400).json({ error: err });
+  });
+});
+
+
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
   //Write your code here
@@ -134,7 +158,7 @@ public_users.get('/title/:title',function (req, res) {
 public_users.get('/review/:isbn',function (req, res) {
   //Write your code here
   const isbn = req.params.isbn
-  if (isbn && books[Number(isbn)] && books[Number(isbn)]["reviews"]){
+  if (!isNaN(isbn) && books[isbn]){
     const book_rev = books[Number(isbn)]["reviews"];
     return res.json({book_rev})
   }else{
